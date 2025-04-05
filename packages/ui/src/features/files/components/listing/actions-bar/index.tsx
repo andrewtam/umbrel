@@ -1,7 +1,7 @@
-// import {SearchIcon} from '@/features/files/assets/search-icon'
 import {MobileActions} from '@/features/files/components/listing/actions-bar/mobile-actions'
 import {NavigationControls} from '@/features/files/components/listing/actions-bar/navigation-controls'
 import {PathBar} from '@/features/files/components/listing/actions-bar/path-bar'
+import {SearchButton} from '@/features/files/components/listing/actions-bar/search-button'
 import {SortDropdown} from '@/features/files/components/listing/actions-bar/sort-dropdown'
 import {ViewToggle} from '@/features/files/components/listing/actions-bar/view-toggle'
 import {Separator} from '@/shadcn-components/ui/separator'
@@ -27,9 +27,8 @@ export function ActionsBar({
 			<div className='ml-auto flex items-center'>
 				{/* Desktop view - show toggle for view and separate buttons for each action */}
 				<div className='hidden items-center gap-2 md:flex'>
-					{/* TODO: Add search here */}
-					{/* <SearchIcon />
-					<Separator orientation='vertical' className='h-6' /> */}
+					<SearchButton />
+					<Separator orientation='vertical' className='h-6' />
 					{DesktopActions ? (
 						<>
 							{DesktopActions}
