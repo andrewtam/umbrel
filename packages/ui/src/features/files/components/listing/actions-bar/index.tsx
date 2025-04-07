@@ -1,7 +1,7 @@
 import {MobileActions} from '@/features/files/components/listing/actions-bar/mobile-actions'
 import {NavigationControls} from '@/features/files/components/listing/actions-bar/navigation-controls'
 import {PathBar} from '@/features/files/components/listing/actions-bar/path-bar'
-import {SearchButton} from '@/features/files/components/listing/actions-bar/search-button'
+import {SearchButton} from'@/features/files/components/listing/actions-bar/search-button'
 import {SortDropdown} from '@/features/files/components/listing/actions-bar/sort-dropdown'
 import {ViewToggle} from '@/features/files/components/listing/actions-bar/view-toggle'
 import {Separator} from '@/shadcn-components/ui/separator'
