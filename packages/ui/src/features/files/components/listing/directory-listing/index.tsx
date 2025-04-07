@@ -24,16 +24,26 @@ export function DirectoryListing() {
 	const currentPage = parseInt(searchParams.get('page') || '1')
 	const {currentPath} = useNavigate()
 
-	const {listing, isLoading, error} = useListDirectory(currentPath, {
+	// Get directory listing
+	const {listing, isLoading: isLoadingDirectory, error} = useListDirectory(currentPath, {
 		start: (currentPage - 1) * ITEMS_PER_PAGE,
 		count: ITEMS_PER_PAGE,
 	})
 
+	// Get search state from store
+	const searchResults = useFilesStore(state => state.searchResults)
+	const isSearching = useFilesStore(state => state.isSearching)
+
+	// Determine which data to use
+	const isInSearchMode = Boolean(searchResults)
+	const items = isInSearchMode ? searchResults.items : (listing?.items || [])
+	const isLoading = isInSearchMode ? isSearching : isLoadingDirectory
+
 	// Grab the potential "new folder" item from store
 	const newFolder = useFilesStore((state: FilesStore) => state.newFolder)
 
-	// Merge new folder (if any) at the top of the list
-	const items = newFolder ? [newFolder, ...(listing?.items || [])] : listing?.items || []
+	// Merge new folder (if any) at the top of the list, but only when not searching
+	const displayItems = !isInSearchMode && newFolder ? [newFolder, ...items] : items
 
 	// For "Paste" command
 	const {pasteItemsFromClipboard} = useFilesOperations()
@@ -106,7 +116,7 @@ export function DirectoryListing() {
 		<>
 			<UploadInput ref={uploadInputRef} />
 			<Listing
-				items={items}
+				items={displayItems}
 				selectableItems={selectableItems}
 				isLoading={isLoading}
 				error={error}

@@ -3,23 +3,41 @@ import {SearchIcon} from '@/features/files/assets/search-icon'
 import {cn} from '@/shadcn-lib/utils'
 import {t} from '@/utils/i18n'
 import {RiCloseCircleFill} from 'react-icons/ri'
+import {useFileSearch} from '@/features/files/hooks/use-file-search'
 
-export function SearchButton() {
+export function SearchButton({currentPath = '/'}: {currentPath?: string}) {
 	const [isExpanded, setIsExpanded] = useState(false)
 	const [searchValue, setSearchValue] = useState('')
 	const inputRef = useRef<HTMLInputElement>(null)
+	
+	// Only destructure public functions
+	const { search, clearSearch } = useFileSearch(currentPath)
 
 	useEffect(() => {
 		if (isExpanded) {
 			inputRef.current?.focus()
+		} else {
+			clearSearch()
 		}
-	}, [isExpanded])
+	}, [isExpanded, clearSearch])
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Escape') {
 			setIsExpanded(false)
 			setSearchValue('')
 		}
+	}
+	
+	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+		const value = e.target.value
+		setSearchValue(value)
+		search(value)
+	}
+	
+	const handleClearSearch = () => {
+		setSearchValue('')
+		clearSearch()
+		setIsExpanded(false)
 	}
 
 	return (
@@ -39,7 +57,7 @@ export function SearchButton() {
 							ref={inputRef}
 							type="text"
 							value={searchValue}
-							onChange={(e) => setSearchValue(e.target.value)}
+							onChange={handleSearchChange}
 							onKeyDown={handleKeyDown}
 							onBlur={() => {
 								setIsExpanded(false)
@@ -51,11 +69,8 @@ export function SearchButton() {
 						{searchValue && (
 							<button
 								onMouseDown={(e) => e.preventDefault()}
-								onClick={() => {
-									setSearchValue('')
-									setIsExpanded(false)
-								}}
-								className='ml-2 rounded-full text-white/50 transition-colors active:text-white'
+								onClick={handleClearSearch}
+								className='ml-2 rounded-full opacity-30 outline-none ring-white/60 transition-opacity hover:opacity-40 active:opacity-100 focus-visible:opacity-40 focus-visible:ring-2'
 								aria-label={t('clear')}
 							>
 								<RiCloseCircleFill className='h-4 w-4' />
