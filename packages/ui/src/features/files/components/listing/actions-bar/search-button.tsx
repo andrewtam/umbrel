@@ -11,10 +11,10 @@ interface SearchButtonProps {
 }
 
 export function SearchButton({onSearch, onClearSearch, currentQuery = ''}: SearchButtonProps) {	
-	const [isExpanded, setIsExpanded] = useState(false)
-	const [searchValue, setSearchValue] = useState(() => currentQuery)
+	const [searchValue, setSearchValue] = useState(currentQuery)
+	const [isExpanded, setIsExpanded] = useState(currentQuery.trim().length > 0)
 	const inputRef = useRef<HTMLInputElement>(null)
-
+	
 	// Focus input when expanded
 	useEffect(() => {
 		if (isExpanded) {
@@ -23,17 +23,18 @@ export function SearchButton({onSearch, onClearSearch, currentQuery = ''}: Searc
 	}, [isExpanded])
 
 	const handleClose = () => {
-		console.log('handleClose called')
-		setIsExpanded(false)
-		setSearchValue('')
-		onClearSearch?.()
+		setIsExpanded(false);
+
+		// Delay clearing the input and notifying the parent until after the close transition.
+		setTimeout(() => {
+			setSearchValue('');
+			onClearSearch?.();
+		}, 200); 
 	}
 
 	const handleBlur = () => {
-		console.log('handleBlur called')
 		// Only close on blur if there's no search value
 		if (!searchValue) {
-			console.log('closing due to blur with no search value')
 			handleClose()
 		}
 	}
@@ -48,11 +49,17 @@ export function SearchButton({onSearch, onClearSearch, currentQuery = ''}: Searc
 		console.log('handleSearchChange called with:', e.target.value)
 		const value = e.target.value
 		setSearchValue(value)
-		onSearch?.(value)
+
+		// Only execute a search if it's not an empty string
+		if (value.trim()) {
+			onSearch?.(value)
+		} else {
+			// Otherwise, close the search box for now (might try to keep search box open in future)
+			handleClose()
+		}
 	}
 
 	const handleSearchOpen = () => {
-		console.log('opening search')
 		setIsExpanded(true)
 	}
 

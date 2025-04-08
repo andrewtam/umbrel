@@ -3,5 +3,10 @@
   "scripts": {
     "dev": "./scripts/umbrel-dev",
     "dev:help": "npm run dev help"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.1",
+    "@types/react-icons": "^2.2.7"
   }
 }

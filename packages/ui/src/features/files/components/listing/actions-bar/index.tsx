@@ -35,11 +35,7 @@ export function ActionsBar({
 			<div className='ml-auto flex items-center'>
 				{/* Desktop view - show toggle for view and separate buttons for each action */}
 				<div className='hidden items-center gap-2 md:flex'>
-					<SearchButton 
-						onSearch={onSearch} 
-						onClearSearch={onClearSearch} 
-						currentQuery={searchQuery}
-					/>
+					<SearchButton onSearch={onSearch} onClearSearch={onClearSearch} currentQuery={searchQuery} />
 					<Separator orientation='vertical' className='h-6' />
 					{DesktopActions ? (
 						<>
