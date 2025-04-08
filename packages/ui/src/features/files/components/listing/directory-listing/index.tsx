@@ -13,6 +13,7 @@ import {useFilesOperations} from '@/features/files/hooks/use-files-operations'
 import {useListDirectory} from '@/features/files/hooks/use-list-directory'
 import {useNavigate} from '@/features/files/hooks/use-navigate'
 import {useNewFolder} from '@/features/files/hooks/use-new-folder'
+import {useFileSearch} from '@/features/files/hooks/use-file-search'
 import {useFilesStore} from '@/features/files/store/use-files-store'
 import type {FilesStore} from '@/features/files/store/use-files-store'
 import {ContextMenuItem, ContextMenuShortcut} from '@/shadcn-components/ui/context-menu'
@@ -22,28 +23,23 @@ import {t} from '@/utils/i18n'
 export function DirectoryListing() {
 	const [searchParams] = useSearchParams()
 	const currentPage = parseInt(searchParams.get('page') || '1')
-	const {currentPath} = useNavigate()
+	const {currentPath} = useNavigate() 
 
-	// Get directory listing
-	const {listing, isLoading: isLoadingDirectory, error} = useListDirectory(currentPath, {
+	const {listing, isLoading, error} = useListDirectory(currentPath, {
 		start: (currentPage - 1) * ITEMS_PER_PAGE,
 		count: ITEMS_PER_PAGE,
 	})
 
-	// Get search state from store
-	const searchResults = useFilesStore(state => state.searchResults)
-	const isSearching = useFilesStore(state => state.isSearching)
-
-	// Determine which data to use
-	const isInSearchMode = Boolean(searchResults)
-	const items = isInSearchMode ? searchResults.items : (listing?.items || [])
-	const isLoading = isInSearchMode ? isSearching : isLoadingDirectory
+	// Search state
+	const {search, clearSearch, isSearching, results, query} = useFileSearch(currentPath)
 
 	// Grab the potential "new folder" item from store
 	const newFolder = useFilesStore((state: FilesStore) => state.newFolder)
 
-	// Merge new folder (if any) at the top of the list, but only when not searching
-	const displayItems = !isInSearchMode && newFolder ? [newFolder, ...items] : items
+	// Determine which items to show based on search state
+	const items = query.trim()
+		? (results?.items || [])
+		: (newFolder ? [newFolder, ...(listing?.items || [])] : listing?.items || [])
 
 	// For "Paste" command
 	const {pasteItemsFromClipboard} = useFilesOperations()
@@ -74,7 +70,7 @@ export function DirectoryListing() {
 	)
 
 	// Filter out items that are currently uploading to prevent them from being selected via marquee selection or keyboard shortcuts
-	const selectableItems = (listing?.items ?? []).filter((item) => !item.isUploading)
+	const selectableItems = items.filter((item) => !item.isUploading)
 
 	// Hide the path bar and disable actions if there's an error or loading state
 	const hidePathAndDisableActions = Boolean(isLoading || error)
@@ -116,16 +112,19 @@ export function DirectoryListing() {
 		<>
 			<UploadInput ref={uploadInputRef} />
 			<Listing
-				items={displayItems}
+				items={items}
 				selectableItems={selectableItems}
-				isLoading={isLoading}
+				isLoading={isSearching || isLoading}
 				error={error}
-				totalItems={listing?.total ?? 0}
+				totalItems={query.trim() ? (results?.items?.length ?? 0) : (listing?.total ?? 0)}
 				additionalDesktopActions={DesktopActions}
 				additionalMobileActions={MobileDropdownActions}
 				additionalContextMenuItems={additionalContextMenuItems}
-				enableFileDrop={true}
+				enableFileDrop={!query.trim()}
 				CustomEmptyView={EmptyStateDirectory}
+				onSearch={search}
+				onClearSearch={clearSearch}
+				searchQuery={query}
 			/>
 		</>
 	)

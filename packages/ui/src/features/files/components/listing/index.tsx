@@ -28,6 +28,9 @@ export interface ListingProps {
 	enableFileDrop?: boolean // if file upload drop zone is enabled
 	additionalDesktopActions?: React.ReactNode // additional actions in the ActionsBar for the desktop view
 	additionalMobileActions?: React.ReactNode // additional dropdown items in the ActionsBar for the mobile view
+	onSearch?: (query: string) => void // callback when search is triggered
+	onClearSearch?: () => void // callback when search is cleared
+	searchQuery?: string // current search query
 }
 
 function ListingContent({
@@ -80,6 +83,9 @@ export function Listing({
 	additionalDesktopActions,
 	additionalMobileActions,
 	enableFileDrop = true,
+	onSearch,
+	onClearSearch,
+	searchQuery,
 }: ListingProps) {
 	const isTouchDevice = useIsTouchDevice()
 	const scrollAreaRef = useRef<HTMLDivElement>(null)
@@ -95,6 +101,9 @@ export function Listing({
 				hidePath={Boolean(isLoading || error)}
 				DesktopActions={additionalDesktopActions}
 				ExtraMobileDropdownItems={additionalMobileActions}
+				onSearch={onSearch}
+				onClearSearch={onClearSearch}
+				searchQuery={searchQuery}
 			/>
 			<ListingContent
 				items={items}

@@ -1,7 +1,7 @@
 import {useCallback, useState, useEffect} from 'react'
 import type {FileSystemItem} from '@/features/files/types'
 
-// Could add stuff like the query and path later on to display on scren.
+// Could add metadata like the query and path later on to display on scren.
 interface SearchResult {
   items: FileSystemItem[]
 }
