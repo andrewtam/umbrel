@@ -127,20 +127,17 @@ export function Listing({
 
 	return (
 		<MarqueeSelection scrollAreaRef={scrollAreaRef} items={selectableItems}>
-			{enableFileDrop ? (
-				<FileUploadDropZone>
-					<Droppable
-						id={`files-listing-${currentPath}`}
-						path={currentPath}
-						className='relative flex h-full flex-col outline-none'
-						dropOverClassName='bg-transparent'
-					>
-						{wrappedContent}
-					</Droppable>
-				</FileUploadDropZone>
-			) : (
-				wrappedContent
-			)}
+			<FileUploadDropZone disabled={!enableFileDrop}>
+				<Droppable
+					id={`files-listing-${currentPath}`}
+					path={currentPath}
+					className='relative flex h-full flex-col outline-none'
+					dropOverClassName='bg-transparent'
+					disabled={!enableFileDrop}
+				>
+					{wrappedContent}
+				</Droppable>
+			</FileUploadDropZone>
 		</MarqueeSelection>
 	)
 }

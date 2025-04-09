@@ -6,6 +6,7 @@ import {Listing} from '@/features/files/components/listing'
 import {ITEMS_PER_PAGE} from '@/features/files/constants'
 import {useListDirectory} from '@/features/files/hooks/use-list-directory'
 import {useNavigate} from '@/features/files/hooks/use-navigate'
+import {useFileSearch} from '@/features/files/hooks/use-file-search'
 import {ContextMenuItem} from '@/shadcn-components/ui/context-menu'
 import {DropdownMenuItem} from '@/shadcn-components/ui/dropdown-menu'
 import {useLinkToDialog} from '@/utils/dialog'
@@ -22,8 +23,10 @@ export function TrashListing() {
 		count: ITEMS_PER_PAGE,
 	})
 
-	const items = listing?.items || []
-	const isTrashEmpty = items.length === 0
+	const {search, clearSearch, isSearching, results, query} = useFileSearch(currentPath)
+
+	const displayItems = query.trim() ? (results?.items || []) : (listing?.items || [])
+	const isTrashEmpty = displayItems.length === 0 && !query.trim()
 
 	const linkToDialog = useLinkToDialog()
 
@@ -63,15 +66,18 @@ export function TrashListing() {
 
 	return (
 		<Listing
-			items={items}
-			selectableItems={items}
-			isLoading={isLoading}
+			items={displayItems}
+			selectableItems={displayItems}
+			isLoading={isLoading || isSearching}
 			error={error}
-			totalItems={listing?.total ?? 0}
+			totalItems={query.trim() ? displayItems.length : (listing?.total ?? 0)}
 			enableFileDrop={false}
 			additionalDesktopActions={DesktopActions}
 			additionalMobileActions={MobileActions}
 			additionalContextMenuItems={additionalContextMenuItems}
+			onSearch={search}
+			onClearSearch={clearSearch}
+			searchQuery={query}
 		/>
 	)
 }

@@ -4,6 +4,7 @@ import {Listing} from '@/features/files/components/listing'
 import {ITEMS_PER_PAGE} from '@/features/files/constants'
 import {useListDirectory} from '@/features/files/hooks/use-list-directory'
 import {useNavigate} from '@/features/files/hooks/use-navigate'
+import {useFileSearch} from '@/features/files/hooks/use-file-search'
 
 export function AppsListing() {
 	const [searchParams] = useSearchParams()
@@ -15,14 +16,23 @@ export function AppsListing() {
 		count: ITEMS_PER_PAGE,
 	})
 
+	// Add search functionality
+	const {search, clearSearch, isSearching, results, query} = useFileSearch(currentPath)
+
+	// Determine which items to show based on search state
+	const displayItems = query.trim() ? (results?.items || []) : (listing?.items || [])
+
 	return (
 		<Listing
-			items={listing?.items ?? []}
-			selectableItems={listing?.items ?? []}
-			isLoading={isLoading}
+			items={displayItems}
+			selectableItems={displayItems}
+			isLoading={isLoading || isSearching}
 			error={error}
-			totalItems={listing?.total ?? 0}
+			totalItems={query.trim() ? displayItems.length : (listing?.total ?? 0)}
 			enableFileDrop={false}
+			onSearch={search}
+			onClearSearch={clearSearch}
+			searchQuery={query}
 		/>
 	)
 }

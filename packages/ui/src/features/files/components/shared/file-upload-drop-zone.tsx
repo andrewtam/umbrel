@@ -7,28 +7,32 @@ import {cn} from '@/shadcn-lib/utils'
 import {t} from '@/utils/i18n'
 
 interface FileUploadDropZoneProps {
-	children: React.ReactNode
+	children: React.ReactNode,
+	disabled?: boolean
 }
 
-export function FileUploadDropZone({children}: FileUploadDropZoneProps) {
+export function FileUploadDropZone({children, disabled = false}: FileUploadDropZoneProps) {
 	const {startUpload} = useGlobalFiles()
 	const {currentPath} = useNavigate()
 
 	const onDrop = (acceptedFiles: File[]) => {
-		startUpload(acceptedFiles, currentPath)
+		if (!disabled) {
+			startUpload(acceptedFiles, currentPath)
+		}
 	}
 
 	const {getRootProps, getInputProps, isDragActive} = useDropzone({
 		onDrop,
 		noClick: true,
 		noKeyboard: true,
+		disabled: disabled,
 	})
 
 	return (
 		<div {...getRootProps()} className='relative h-full'>
 			<input {...getInputProps()} />
 			{children}
-			{isDragActive && <DropOverlay />}
+			{!disabled && isDragActive && <DropOverlay />}
 		</div>
 	)
 }

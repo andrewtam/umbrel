@@ -7,12 +7,15 @@ import {RiCloseCircleFill} from 'react-icons/ri'
 interface SearchButtonProps {
 	onSearch?: (query: string) => void
 	onClearSearch?: () => void
-	currentQuery?: string
+	currentQuery?: string | null
+	searchId?: string
 }
 
-export function SearchButton({onSearch, onClearSearch, currentQuery = ''}: SearchButtonProps) {	
+export function SearchButton({onSearch, onClearSearch, currentQuery = '', searchId = 'default'}: SearchButtonProps) {	
 	const [searchValue, setSearchValue] = useState(currentQuery)
-	const [isExpanded, setIsExpanded] = useState(currentQuery.trim().length > 0)
+	const hasClosedManually = useRef(true)
+	// The logic here is that we don't want to automatically close the search box on re-render if the user already manually opened it
+	const [isExpanded, setIsExpanded] = useState((currentQuery?.trim().length > 0 || !hasClosedManually.current))
 	const inputRef = useRef<HTMLInputElement>(null)
 	
 	// Focus input when expanded
@@ -23,6 +26,7 @@ export function SearchButton({onSearch, onClearSearch, currentQuery = ''}: Searc
 	}, [isExpanded])
 
 	const handleClose = () => {
+		hasClosedManually.current = true
 		setIsExpanded(false);
 
 		// Delay clearing the input and notifying the parent until after the close transition.
@@ -46,7 +50,6 @@ export function SearchButton({onSearch, onClearSearch, currentQuery = ''}: Searc
 	}
 	
 	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		console.log('handleSearchChange called with:', e.target.value)
 		const value = e.target.value
 		setSearchValue(value)
 
@@ -54,12 +57,22 @@ export function SearchButton({onSearch, onClearSearch, currentQuery = ''}: Searc
 		if (value.trim()) {
 			onSearch?.(value)
 		} else {
-			// Otherwise, close the search box for now (might try to keep search box open in future)
-			handleClose()
+			// Otherwise, clear the search
+			onClearSearch?.()
 		}
 	}
 
+	const clearSearch = () => {
+		setSearchValue('')
+		onClearSearch?.()
+		// Re-focus the input
+		setTimeout(() => {
+			inputRef.current?.focus()
+		}, 0)
+	}
+
 	const handleSearchOpen = () => {
+		hasClosedManually.current = false
 		setIsExpanded(true)
 	}
 
@@ -81,7 +94,7 @@ export function SearchButton({onSearch, onClearSearch, currentQuery = ''}: Searc
 						<input
 							ref={inputRef}
 							type="text"
-							value={searchValue}
+							value={searchValue || ''}
 							onChange={handleSearchChange}
 							onKeyDown={handleKeyDown}
 							onBlur={handleBlur}
@@ -95,7 +108,7 @@ export function SearchButton({onSearch, onClearSearch, currentQuery = ''}: Searc
 									e.preventDefault()
 									e.stopPropagation()
 								}}
-								onClick={handleClose}
+								onClick={clearSearch}
 								className='ml-2 rounded-full opacity-30 outline-none ring-white/60 transition-opacity hover:opacity-40 active:opacity-100 focus-visible:opacity-40 focus-visible:ring-2'
 								aria-label={t('clear')}
 							>

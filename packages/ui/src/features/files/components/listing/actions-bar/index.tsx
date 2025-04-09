@@ -28,7 +28,7 @@ export function ActionsBar({
 			{/* Left side: Navigation and Path */}
 			<div className='flex min-w-0 flex-1 items-center gap-2 overflow-hidden'>
 				<NavigationControls />
-				{hidePath ? null : <PathBar />}
+				{hidePath || Boolean(searchQuery?.trim().length) ? null : <PathBar />}
 			</div>
 
 			{/* Right side: View Controls and Actions */}
@@ -48,7 +48,8 @@ export function ActionsBar({
 				</div>
 
 				{/* Mobile view - show menu with all actions */}
-				<div className='md:hidden'>
+				<div className='flex items-center gap-2 md:hidden'>
+					<SearchButton onSearch={onSearch} onClearSearch={onClearSearch} currentQuery={searchQuery} />
 					<MobileActions DropdownItems={ExtraMobileDropdownItems} />
 				</div>
 			</div>
